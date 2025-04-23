@@ -28,6 +28,7 @@ type Vendor = {
 };
 type Medicine = {
   name: string;
+  identifier: string;
   batch: Batch;
   expiry_date: string;
   price: number;

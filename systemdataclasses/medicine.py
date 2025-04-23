@@ -49,6 +49,12 @@ class MedicineList:
             medicine for medicine in self.medicines if medicine.identifier != identifier
         ]
 
+    def find_medicine(self, identifier: str):
+        for medicine in self.medicines:
+            if medicine.identifier == identifier:
+                return medicine
+        return None
+    
     def get_medicines(self):
         return self.medicines
 

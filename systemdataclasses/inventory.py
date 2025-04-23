@@ -6,10 +6,12 @@ if TYPE_CHECKING:
 
 
 class Inventory:
-    def __init(self):
-        self.inventory = {}
-
-    def __init__(self, medicines: list[medicine.Medicine], quantity: list[int]):
+    def __init__(
+        self, medicines: list[medicine.Medicine] = None, quantity: list[int] = None
+    ):
+        if medicines is None or quantity is None:
+            self.inventory = {}
+            return
         if len(medicines) != len(quantity):
             raise ValueError("Medicines and quantities must have the same length.")
         self.inventory = {}
@@ -74,3 +76,33 @@ class Inventory:
 
     def __str__(self):
         return f"Inventory(medicine={self.medicine}, quantity={self.quantity})"
+
+    def toJson(self):
+        return [
+            {
+                "medicine": med.toJson(),
+                "quantity": qty,
+            }
+            for med, qty in self.inventory.items()
+        ]
+
+    def threshold_toJson(self, threshold: int):
+        return [
+            {
+                "medicine": med.toJson(),
+                "quantity": qty,
+            }
+            for med, qty in self.inventory.items()
+            if qty <= threshold
+        ]
+
+    def expiry_toJson(self, current_date: str):
+        return [
+            {
+                "medicine": med.toJson(),
+                "expiry_date": med.batch.expiry_date,
+                "quantity": qty,
+            }
+            for med, qty in self.inventory.items()
+            if med.batch.expiry_date < current_date
+        ]
