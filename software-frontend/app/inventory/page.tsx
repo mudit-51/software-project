@@ -233,7 +233,7 @@ export default function Page() {
             <Button
               variant="outline"
               className="ml-auto"
-              onClick={() => router.push("/medicines/create")}
+              onClick={() => router.push("/medicines")}
             >
               New Medicine
             </Button>

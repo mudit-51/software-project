@@ -123,6 +123,15 @@ def create_cart():
 
     return curr_cart.generate_reciept_json(), 201
 
+@app.route("/statistics", methods=["GET"])
+def get_value_statistics():
+    return sales_instance.get_sales_statistics()
+
+
+@app.route("/history", methods=["GET"])
+def get_history():
+    temp = sales_instance.get_sales_history_json().reverse()
+    return temp
 
 @app.route("/")
 def hello_world():
