@@ -34,7 +34,7 @@ class Cart:
         for item, quantity in self.cart.items():
             total += item.price * quantity
         return total
-    
+
     def generate_receipt(self) -> str:
         self.sales.add_sale(self)
         receipt = "Receipt:\n"
@@ -42,6 +42,19 @@ class Cart:
             receipt += f"{item.name} (x{quantity}): ${item.price * quantity:.2f}\n"
         receipt += f"Total: ${self.calculate_total():.2f}"
         return receipt
-    
+
+    def generate_reciept_json(self):
+        receipt = {"items": [], "total": self.calculate_total()}
+        item: medicine.Medicine
+        for item, quantity in self.cart.items():
+            receipt["items"].append(
+                {
+                    "name": item.name,
+                    "quantity": quantity,
+                    "price": item.price * quantity,
+                }
+            )
+        return receipt
+
     def get_cart(self) -> dict[medicine.Medicine, int]:
         return self.cart

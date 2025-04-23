@@ -41,3 +41,6 @@ class Sales:
     
     def get_sales_history(self) -> list[cart.Cart]:
         return self.sales_list
+    
+    def get_sales_json(self):
+        return [cart.generate_reciept_json() for cart in self.sales_list]

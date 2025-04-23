@@ -1,5 +1,5 @@
 from flask import Flask, request
-from systemdataclasses import vendor, batch, medicine, inventory
+from systemdataclasses import vendor, batch, medicine, inventory, sales, cart
 from flask_cors import CORS  # add this import
 
 vendor_list = vendor.VendorList()
@@ -22,8 +22,9 @@ medicine_list.add_medicine(m2)
 
 inventory = inventory.Inventory()
 for medicine in medicine_list.get_medicines():
-    inventory.add_medicine(medicine, 0)
+    inventory.add_medicine(medicine, 10)
 
+sales_instance = sales.Sales()
 
 app = Flask(__name__)
 CORS(app)
@@ -107,6 +108,19 @@ def get_expiry_alerts():
 @app.route("/inventory/valuation", methods=["GET"])
 def get_stock_valuation():
     return {"stock_valuation": inventory.get_stock_valuation()}
+
+
+@app.route("/cart/checkout", methods=["POST"])
+def create_cart():
+    data = request.get_json()
+    curr_cart = cart.Cart(sales_instance)
+    for item in data["items"]:
+        medicine_obj = medicine_list.find_medicine(item["medicine"]["identifier"])
+        if not medicine_obj:
+            return {"message": "Medicine not found"}, 404
+        curr_cart.add_item(medicine_obj, item["quantity"])
+
+    return curr_cart.generate_reciept_json(), 201
 
 
 @app.route("/")
