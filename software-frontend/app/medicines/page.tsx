@@ -11,10 +11,22 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 
 type Batch = {
@@ -69,7 +81,9 @@ export default function Page() {
       .then(setBatches);
     fetch("http://localhost:5000/vendors")
       .then((res) => res.json())
-      .then(setVendors);
+      .then((data) => {
+        setVendors(data["vendors"]);
+      });
   }, []);
 
   const handleFormChange = (field: string, value: string) => {
@@ -91,7 +105,9 @@ export default function Page() {
       if (resp.ok) {
         batchToUse = form.new_batch_number;
         // Refresh batches
-        const newBatches = await fetch("http://localhost:5000/batches").then((r) => r.json());
+        const newBatches = await fetch("http://localhost:5000/batches").then(
+          (r) => r.json()
+        );
         setBatches(newBatches);
       } else {
         alert("Failed to add batch");
@@ -208,7 +224,9 @@ export default function Page() {
                 <div className="flex gap-2">
                   <Select
                     value={form.batch_number}
-                    onValueChange={(val) => handleFormChange("batch_number", val)}
+                    onValueChange={(val) =>
+                      handleFormChange("batch_number", val)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select batch" />
@@ -221,7 +239,11 @@ export default function Page() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button type="button" variant="outline" onClick={() => setAddingBatch(true)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setAddingBatch(true)}
+                  >
                     Add New Batch
                   </Button>
                 </div>
@@ -229,13 +251,17 @@ export default function Page() {
                 <div className="space-y-2">
                   <Input
                     value={form.new_batch_number}
-                    onChange={(e) => handleFormChange("new_batch_number", e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("new_batch_number", e.target.value)
+                    }
                     placeholder="Batch number"
                   />
                   <Input
                     type="date"
                     value={form.new_batch_expiry}
-                    onChange={(e) => handleFormChange("new_batch_expiry", e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("new_batch_expiry", e.target.value)
+                    }
                     placeholder="Expiry date"
                   />
                   <div className="flex gap-2">
@@ -255,7 +281,9 @@ export default function Page() {
               <Input
                 type="date"
                 value={form.expiry_date}
-                onChange={(e) => handleFormChange("expiry_date", e.target.value)}
+                onChange={(e) =>
+                  handleFormChange("expiry_date", e.target.value)
+                }
                 placeholder="Expiry date"
               />
             </div>
@@ -305,7 +333,12 @@ export default function Page() {
               onClick={handleAddMedicine}
               disabled={
                 !form.name ||
-                (!form.batch_number && !(addingBatch && form.new_batch_number && form.new_batch_expiry)) ||
+                (!form.batch_number &&
+                  !(
+                    addingBatch &&
+                    form.new_batch_number &&
+                    form.new_batch_expiry
+                  )) ||
                 !form.expiry_date ||
                 !form.price ||
                 !form.vendor_id

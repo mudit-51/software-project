@@ -8,9 +8,10 @@ if TYPE_CHECKING:
 
 
 class Cart:
-    def __init__(self, sales: sales.Sales):
+    def __init__(self, sales: sales.Sales, inventory: inventory.Inventory):
         self.cart = {}
         self.sales = sales
+        self.inventory = inventory
 
     def add_item(self, medicine: medicine.Medicine, quantity: int):
         if medicine in self.cart:
@@ -47,6 +48,9 @@ class Cart:
         receipt = {"items": [], "total": self.calculate_total()}
         item: medicine.Medicine
         for item, quantity in self.cart.items():
+            if self.inventory.get_quantity(item) < quantity:
+                raise ValueError(f"Not enough {item.name} in inventory.")
+            self.inventory.remove_medicine(item, quantity)
             receipt["items"].append(
                 {
                     "name": item.name,

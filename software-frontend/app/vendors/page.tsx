@@ -57,9 +57,15 @@ export default function Page() {
 
   // Placeholder API functions
   async function fetchVendors(): Promise<
-    { vendor_id: string; name: string; contact_info: string }[]
+    {
+      vendor_id: string;
+      name: string;
+      contact_info: string;
+    }[]
   > {
-    return fetch("http://localhost:5000/vendors").then((res) => res.json());
+    const res = await fetch("http://localhost:5000/vendors");
+    const data = await res.json();
+    return data["vendors"];
   }
 
   async function submitVendor(data: {
@@ -148,13 +154,14 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {vendors.map((v) => (
-                <TableRow key={v.vendor_id}>
-                  <TableCell>{v.vendor_id}</TableCell>
-                  <TableCell>{v.name}</TableCell>
-                  <TableCell>{v.contact_info}</TableCell>
-                </TableRow>
-              ))}
+              {vendors &&
+                vendors.map((v) => (
+                  <TableRow key={v.vendor_id}>
+                    <TableCell>{v.vendor_id}</TableCell>
+                    <TableCell>{v.name}</TableCell>
+                    <TableCell>{v.contact_info}</TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         )}

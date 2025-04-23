@@ -53,6 +53,12 @@ type CartItem = {
   quantity: number;
 };
 
+type ReceiptItem = {
+  name: string;
+  quantity: number;
+  price: number;
+};
+
 export default function Page() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartCreated, setCartCreated] = useState(false);
@@ -60,6 +66,9 @@ export default function Page() {
   const [selectedMedicine, setSelectedMedicine] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [receipt, setReceipt] = useState<ReceiptItem[]>([]);
+  const [receiptTotal, setReceiptTotal] = useState<number>(0);
+  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
 
   // Fetch inventory from backend
   const fetchInventory = async () => {
@@ -112,13 +121,18 @@ export default function Page() {
   };
 
   const handleCheckout = async () => {
-    await fetch("http://localhost:5000/cart/checkout", {
+    const res = await fetch("http://localhost:5000/cart/checkout", {
       method: "POST",
       body: JSON.stringify({ items: cart }),
       headers: { "Content-Type": "application/json" },
     });
+    const data = await res.json();
+    setReceipt(data["items"]);
+    setReceiptTotal(data["total"]);
+    setReceiptDialogOpen(true);
     setCart([]);
     setCartCreated(false);
+    await fetchInventory(); // Refresh inventory after checkout
   };
 
   // Update inventory after cart changes (to reflect available stock)
@@ -129,6 +143,53 @@ export default function Page() {
 
   return (
     <div className="p-8">
+      {/* Receipt Dialog */}
+      <Dialog open={receiptDialogOpen} onOpenChange={setReceiptDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Receipt</DialogTitle>
+          </DialogHeader>
+          {receipt ? (
+            <div className="space-y-2">
+              <div>
+                <span className="font-semibold">Date:</span> {Date.now()}
+              </div>
+              <div>
+                <span className="font-semibold">Items:</span>
+                <Table className="mt-2">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Medicine</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {receipt.map((ri, i) => (
+                      <TableRow key={i}>
+                        <TableCell>{ri.name}</TableCell>
+                        <TableCell>{ri.quantity}</TableCell>
+                        <TableCell>₹{ri.price}</TableCell>
+                        <TableCell>₹{ri.price * ri.quantity}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div>
+                <span className="font-semibold">Total Amount:</span> ₹
+                {receiptTotal}
+              </div>
+            </div>
+          ) : (
+            <div>No receipt data.</div>
+          )}
+          <Button className="mt-2" onClick={() => setReceiptDialogOpen(false)}>
+            Close
+          </Button>
+        </DialogContent>
+      </Dialog>
       {!cartCreated ? (
         <Button onClick={handleCreateCart}>Create Cart</Button>
       ) : (
@@ -222,9 +283,7 @@ export default function Page() {
                         setCart((prev) =>
                           prev
                             .map((c, i) =>
-                              i === idx
-                                ? { ...c, quantity: c.quantity - 1 }
-                                : c
+                              i === idx ? { ...c, quantity: c.quantity - 1 } : c
                             )
                             .filter((c, i) => !(i === idx && c.quantity <= 0))
                         );
