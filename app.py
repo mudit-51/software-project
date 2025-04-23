@@ -17,17 +17,19 @@ batch_list.add_batch(b2)
 medicine_list = medicine.MedicineList()
 
 app = Flask(__name__)
-CORS(app)  # enable CORS for all routes and origins
+CORS(app)
 
+
+# Vendor routes
 @app.route('/vendors', methods=['GET'])
 def get_vendors():
-    return vendor_list.toJson()
+    return {'vendors': vendor_list.toJson()}
+
 
 @app.route('/vendors/add', methods=['POST'])
 def add_vendor():
     data = request.get_json()
-    print(data)
-    new_vendor = vendor.Vendor(data['vendor_id'], data['name'], data['contact_info'])
+    new_vendor = Vendor(data['vendor_id'], data['name'], data['contact_info'])
     vendor_list.add_vendor(new_vendor)
     return {'message': 'Vendor added successfully'}, 201
 
