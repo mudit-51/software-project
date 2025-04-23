@@ -25,3 +25,32 @@ class Medicine:
 
     def __str__(self):
         return f"Medicine(name={self.name}, batch_number={str(self.batch)}, expiry_date={self.expiry_date}, price={self.price}, vendor={self.vendor})"
+
+    def toJson(self):
+        return {
+            "name": self.name,
+            "identifier": self.identifier,
+            "batch": self.batch.toJson(),
+            "expiry_date": self.expiry_date,
+            "price": self.price,
+            "vendor": self.vendor.toJson(),
+        }
+
+
+class MedicineList:
+    def __init__(self):
+        self.medicines = []
+
+    def add_medicine(self, medicine: Medicine):
+        self.medicines.append(medicine)
+
+    def remove_medicine(self, identifier: str):
+        self.medicines = [
+            medicine for medicine in self.medicines if medicine.identifier != identifier
+        ]
+
+    def get_medicines(self):
+        return self.medicines
+
+    def toJson(self):
+        return [medicine.toJson() for medicine in self.medicines]
