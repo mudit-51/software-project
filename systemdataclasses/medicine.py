@@ -23,6 +23,11 @@ class Medicine:
         self.price = price
         self.vendor = vendor
 
+    def send_to_vendor(self, quantity: int):
+        obj = self.toJson()
+        obj["quantity"] = quantity
+        self.vendor.add_order(obj)
+
     def __str__(self):
         return f"Medicine(name={self.name}, batch_number={str(self.batch)}, expiry_date={self.expiry_date}, price={self.price}, vendor={self.vendor})"
 

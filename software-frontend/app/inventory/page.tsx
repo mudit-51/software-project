@@ -340,6 +340,7 @@ export default function Page() {
             <TableHeader>
               <TableRow>
                 <TableHead>Medicine | Identifier</TableHead>
+                <TableHead>Vendor</TableHead>
                 <TableHead>Quantity in Stock</TableHead>
               </TableRow>
             </TableHeader>
@@ -348,6 +349,9 @@ export default function Page() {
                 <TableRow key={unit.medicine.identifier}>
                   <TableCell>
                     {unit.medicine.name + " | " + unit.medicine.identifier}
+                  </TableCell>
+                  <TableCell>
+                    {unit.medicine.vendor?.name || "—"}
                   </TableCell>
                   <TableCell>{unit.quantity}</TableCell>
                 </TableRow>

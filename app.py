@@ -2,9 +2,11 @@ from flask import Flask, request
 from systemdataclasses import vendor, batch, medicine, inventory, sales, cart
 from flask_cors import CORS  # add this import
 
+inventory_obj = inventory.Inventory()
+
 vendor_list = vendor.VendorList()
-v1 = vendor.Vendor("V001", "Acme Corp", "123-456-7890")
-v2 = vendor.Vendor("V002", "Globex Inc", "987-654-3210")
+v1 = vendor.Vendor("V001", "Acme Corp", "123-456-7890", inventory_obj)
+v2 = vendor.Vendor("V002", "Globex Inc", "987-654-3210", inventory_obj)
 vendor_list.add_vendor(v1)
 vendor_list.add_vendor(v2)
 
@@ -20,7 +22,6 @@ m2 = medicine.Medicine("Ibuprofen", b2, "2025-06-30", 12.99, v2)
 medicine_list.add_medicine(m1)
 medicine_list.add_medicine(m2)
 
-inventory_obj = inventory.Inventory()
 for x in medicine_list.get_medicines():
     inventory_obj.add_medicine(x, 10)
 
@@ -34,6 +35,40 @@ CORS(app)
 @app.route("/vendors", methods=["GET"])
 def get_vendors():
     return {"vendors": vendor_list.toJson()}
+
+
+@app.route("/vendors/<vendor_id>/orders", methods=["GET"])
+def get_vendor(vendor_id):
+    request_type = request.args.get("type", default="all", type=str)
+    vendor_obj: vendor.Vendor = vendor_list.find_vendor(vendor_id)
+    if not vendor_obj:
+        return {"message": "Vendor not found"}, 404
+    if request_type == "fulfilled":
+        return vendor_obj.get_fulfilled_orders()
+    return vendor_obj.get_orders()
+
+
+@app.route("/vendors/<vendor_id>/orders/process", methods=["GET"])
+def fulfill_order(vendor_id):
+    print("should not fire")
+    order_id = request.args.get("order_id", default="", type=str)
+    action = request.args.get("action", default="", type=str)
+    if not order_id or not action:
+        return {"message": "Order ID and action are required"}, 400
+    if action != "approve" and action != "deny":
+        return {"message": "Invalid action"}, 400
+    vendor_obj: vendor.Vendor = vendor_list.find_vendor(vendor_id)
+    if not vendor_obj:
+        return {"message": "Vendor not found"}, 404
+    try:
+        if action == "approve":
+            vendor_obj.fullfill_order(order_id)
+            return {"message": "Order fulfilled successfully"}, 200
+        else:
+            vendor_obj.reject_order(order_id)
+            return {"message": "Order denied successfully"}, 200
+    except ValueError as e:
+        return {"message": str(e)}, 400
 
 
 @app.route("/vendors/add", methods=["POST"])
@@ -65,7 +100,6 @@ def get_medicines():
 @app.route("/medicines/add", methods=["POST"])
 def add_medicine():
     data = request.get_json()
-    print(data)
     batch_obj = batch_list.find_batch(data["batch_number"])
     if not batch_obj:
         return {"message": "Batch not found"}, 404
@@ -90,7 +124,7 @@ def add_inventory_item():
     medicine_obj = medicine_list.find_medicine(data["identifier"])
     if not medicine_obj:
         return {"message": "Medicine not found"}, 404
-    inventory_obj.add_medicine(medicine_obj, data["quantity"])
+    inventory_obj.queue_order(medicine_obj, data["quantity"])
     return {"message": "Inventory item added successfully"}, 201
 
 
@@ -123,6 +157,7 @@ def create_cart():
 
     return curr_cart.generate_reciept_json(), 201
 
+
 @app.route("/statistics", methods=["GET"])
 def get_value_statistics():
     return sales_instance.get_sales_statistics()
@@ -132,6 +167,7 @@ def get_value_statistics():
 def get_history():
     temp = sales_instance.get_sales_history_json().reverse()
     return temp
+
 
 @app.route("/")
 def hello_world():

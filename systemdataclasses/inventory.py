@@ -18,6 +18,9 @@ class Inventory:
         for med, qty in zip(medicines, quantity):
             self.inventory[med] = qty
 
+    def queue_order(self, medicine: medicine.Medicine, quantity: int):
+        medicine.send_to_vendor(quantity)
+
     def add_medicine(self, medicine: medicine.Medicine, quantity: int):
         if medicine in self.inventory:
             self.inventory[medicine] += quantity
@@ -38,9 +41,9 @@ class Inventory:
     def get_quantity(self, medicine: medicine.Medicine) -> int:
         return self.inventory.get(medicine, 0)
 
-    def search_medicine(self, name: str) -> medicine.Medicine:
+    def search_medicine(self, id: str) -> medicine.Medicine:
         for med in self.inventory.keys():
-            if med.name == name:
+            if med.identifier == id:
                 return med
         raise ValueError("Medicine not found in inventory.")
 
