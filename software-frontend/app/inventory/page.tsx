@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import {
   Table,
@@ -126,6 +127,7 @@ export default function Page() {
       setStockValuation(null);
     }
     setLoading(false);
+    toast.success("Order has been submitted to the vendor");
   };
 
   const handleFetchLowStock = async () => {
@@ -145,6 +147,15 @@ export default function Page() {
     const data: Inventory[] = await res.json();
     setExpiryResults(data);
   };
+
+  // Helper to get selected medicine price
+  const selectedMedicine = allMedicines.find(
+    (med) => med.identifier === selectedMedicineId
+  );
+  const orderCost =
+    selectedMedicine && quantity > 0
+      ? selectedMedicine.price * quantity
+      : 0;
 
   if (loading) return <div>Loading...</div>;
 
@@ -221,6 +232,12 @@ export default function Page() {
             </div>
           </div>
           <DialogFooter className="flex gap-2 mt-4">
+            {/* Order cost display */}
+            <div className="flex-1 text-left text-muted-foreground text-sm flex items-center">
+              {selectedMedicineId && quantity > 0
+                ? <>Order Cost: <span className="font-semibold ml-1">₹{orderCost.toLocaleString()}</span></>
+                : null}
+            </div>
             <Button
               onClick={handleAddInventory}
               disabled={!selectedMedicineId || quantity <= 0}

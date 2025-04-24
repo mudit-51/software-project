@@ -5,6 +5,7 @@ import Link from "next/link";
 // Import shadcn components
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 function Navbar() {
   return (
     <nav className="w-full flex items-center justify-between px-6 py-4 border-b bg-white">
-      <div className="text-xl font-bold">MyApp</div>
+      <div className="text-xl font-bold">M.SaaS</div>
       <div className="flex gap-4">
         <Link href="/inventory">
           <Button variant="ghost" className="font-normal">
@@ -58,6 +59,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Navbar />
         {children}
+        <Toaster />
       </body>
     </html>
   );
