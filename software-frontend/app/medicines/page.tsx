@@ -1,14 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,16 +25,37 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getSortedRowModel,
+  SortingState,
+  getFilteredRowModel,
+  ColumnFiltersState,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ChevronDown, ChevronUp, Search } from "lucide-react";
 
 type Batch = {
   batch_number: string;
   expiry_date: string;
 };
+
 type Vendor = {
   vendor_id: string;
   name: string;
   contact_info: string;
 };
+
 type Medicine = {
   name: string;
   identifier: string;
@@ -46,6 +64,175 @@ type Medicine = {
   price: number;
   vendor: Vendor;
 };
+
+// Column definitions for the data table
+const columns: ColumnDef<Medicine>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Name
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : null}
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "batch.batch_number",
+    header: "Batch",
+    cell: ({ row }) => row.original.batch.batch_number,
+  },
+  {
+    accessorKey: "expiry_date",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Expiry Date
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : null}
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "price",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Price
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : null}
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue("price"));
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(price);
+    },
+  },
+  {
+    accessorKey: "vendor.name",
+    header: "Vendor",
+    cell: ({ row }) => (
+      <div>
+        {row.original.vendor.vendor_id} | {row.original.vendor.name}
+      </div>
+    ),
+  },
+];
+
+// Data Table Component
+function DataTable({ data, columns }: { data: Medicine[]; columns: ColumnDef<Medicine>[] }) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+    },
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search medicines..."
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+      </div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
 
 export default function Page() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -178,30 +365,7 @@ export default function Page() {
             No medicines found.
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Batch</TableHead>
-                <TableHead>Expiry Date</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Vendor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {medicines.map((med, idx) => (
-                <TableRow key={idx}>
-                  <TableCell>{med.name}</TableCell>
-                  <TableCell>{med.batch.batch_number}</TableCell>
-                  <TableCell>{med.expiry_date}</TableCell>
-                  <TableCell>{med.price}</TableCell>
-                  <TableCell>
-                    {med.vendor.vendor_id} | {med.vendor.name}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={medicines} />
         )}
       </CardContent>
       <Dialog open={open} onOpenChange={setOpen}>
