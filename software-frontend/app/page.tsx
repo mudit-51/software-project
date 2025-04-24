@@ -1,7 +1,6 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="">Hello world</div>
-  );
+  redirect("/medicines");
+  return null;
 }

@@ -1,11 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -132,7 +127,7 @@ const columns: ColumnDef<Medicine>[] = [
       const price = parseFloat(row.getValue("price"));
       return new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: "INR",
       }).format(price);
     },
   },
@@ -148,7 +143,13 @@ const columns: ColumnDef<Medicine>[] = [
 ];
 
 // Data Table Component
-function DataTable({ data, columns }: { data: Medicine[]; columns: ColumnDef<Medicine>[] }) {
+function DataTable({
+  data,
+  columns,
+}: {
+  data: Medicine[];
+  columns: ColumnDef<Medicine>[];
+}) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");

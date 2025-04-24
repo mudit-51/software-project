@@ -158,7 +158,8 @@ export default function Page() {
           {receipt ? (
             <div className="space-y-2">
               <div>
-                <span className="font-semibold">Date:</span> {Date.now()}
+                <span className="font-semibold">Date:</span>{" "}
+                {new Date().toLocaleString("en-IN")}
               </div>
               <div>
                 <span className="font-semibold">Items:</span>
@@ -313,9 +314,7 @@ export default function Page() {
             </TableBody>
           </Table>
           {/* Cart total display */}
-          <div className="mb-4 font-semibold">
-            Cart Total: ₹{cartTotal}
-          </div>
+          <div className="mb-4 font-semibold">Cart Total: ₹{cartTotal}</div>
           <Button onClick={handleCheckout} disabled={cart.length === 0}>
             Complete Transaction
           </Button>
