@@ -5,6 +5,7 @@ import Link from "next/link";
 // Import shadcn components
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -58,6 +59,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Navbar />
         {children}
+        <Toaster />
       </body>
     </html>
   );
