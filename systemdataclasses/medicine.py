@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 from typing import TYPE_CHECKING
 import time
 
@@ -16,6 +17,20 @@ class Medicine:
         price: float,
         vendor: vendor.Vendor,
     ):
+        if batch is None:
+            raise ValueError("Batch cannot be None")
+        if vendor is None:
+            raise ValueError("Vendor cannot be None")
+        if name is None or name == "":
+            raise ValueError("Name cannot be None or empty")
+        if expiry_date is None or expiry_date == "":
+            raise ValueError("Expiry date cannot be None or empty")
+        if price <= 0:
+            raise ValueError("Price must be greater than 0")
+        try:
+            datetime.strptime(expiry_date, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("Expiry date must be in YYYY-MM-DD format")
         self.name = name
         self.identifier = name.replace(" ", "_").lower() + "_" + str(time.time())
         self.batch = batch
@@ -24,6 +39,8 @@ class Medicine:
         self.vendor = vendor
 
     def send_to_vendor(self, quantity: int):
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than 0")
         obj = self.toJson()
         obj["quantity"] = quantity
         self.vendor.add_order(obj)
@@ -46,22 +63,26 @@ class MedicineList:
     def __init__(self):
         self.medicines = []
 
-    def add_medicine(self, medicine: Medicine):
-        self.medicines.append(medicine)
+    def add_medicine(self, medicine_obj: Medicine):
+        if medicine_obj is None:
+            raise ValueError("Medicine cannot be None or not of type Medicine")
+        self.medicines.append(medicine_obj)
 
     def remove_medicine(self, identifier: str):
         self.medicines = [
-            medicine for medicine in self.medicines if medicine.identifier != identifier
+            medicine_obj
+            for medicine_obj in self.medicines
+            if medicine_obj.identifier != identifier
         ]
 
     def find_medicine(self, identifier: str):
-        for medicine in self.medicines:
-            if medicine.identifier == identifier:
-                return medicine
+        for medicine_obj in self.medicines:
+            if medicine_obj.identifier == identifier:
+                return medicine_obj
         return None
-    
+
     def get_medicines(self):
         return self.medicines
 
     def toJson(self):
-        return [medicine.toJson() for medicine in self.medicines]
+        return [medicine_obj.toJson() for medicine_obj in self.medicines]

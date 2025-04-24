@@ -8,23 +8,34 @@ if TYPE_CHECKING:
 
 
 class Cart:
-    def __init__(self, sales: sales.Sales, inventory: inventory.Inventory):
+    def __init__(self, sales_obj: sales.Sales, inventory_obj: inventory.Inventory):
+        if sales_obj is None or inventory_obj is None:
+            raise ValueError("Sales and Inventory objects cannot be None.")
+
         self.cart = {}
-        self.sales = sales
-        self.inventory = inventory
+        self.sales = sales_obj
+        self.inventory = inventory_obj
 
-    def add_item(self, medicine: medicine.Medicine, quantity: int):
-        if medicine in self.cart:
-            self.cart[medicine] += quantity
+    def add_item(self, medicine_obj: medicine.Medicine, quantity: int):
+        if medicine_obj is None:
+            raise ValueError("Medicine cannot be None or not of type Medicine.")
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than 0.")
+        if medicine_obj in self.cart:
+            self.cart[medicine_obj] += quantity
         else:
-            self.cart[medicine] = quantity
+            self.cart[medicine_obj] = quantity
 
-    def remove_item(self, medicine: medicine.Medicine, quantity: int):
-        if medicine in self.cart:
-            if self.cart[medicine] >= quantity:
-                self.cart[medicine] -= quantity
-                if self.cart[medicine] == 0:
-                    del self.cart[medicine]
+    def remove_item(self, medicine_obj: medicine.Medicine, quantity: int):
+        if medicine_obj is None:
+            raise ValueError("Medicine cannot be None or not of type Medicine.")
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than 0.")
+        if medicine_obj in self.cart:
+            if self.cart[medicine_obj] >= quantity:
+                self.cart[medicine_obj] -= quantity
+                if self.cart[medicine_obj] == 0:
+                    del self.cart[medicine_obj]
             else:
                 raise ValueError("Not enough quantity to remove.")
         else:
@@ -57,8 +68,7 @@ class Cart:
 
     def get_cart(self) -> dict[medicine.Medicine, int]:
         return self.cart
-    
-    
+
     def get_cart_json(self):
         res = []
         for item, quantity in self.cart.items():

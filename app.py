@@ -3,10 +3,11 @@ from systemdataclasses import vendor, batch, medicine, inventory, sales, cart
 from flask_cors import CORS  # add this import
 
 inventory_obj = inventory.Inventory()
-
+medicine_list = medicine.MedicineList()
 vendor_list = vendor.VendorList()
-v1 = vendor.Vendor("V001", "Acme Corp", "123-456-7890", inventory_obj)
-v2 = vendor.Vendor("V002", "Globex Inc", "987-654-3210", inventory_obj)
+
+v1 = vendor.Vendor("V001", "Acme Corp", "123-456-7890", inventory_obj, medicine_list)
+v2 = vendor.Vendor("V002", "Globex Inc", "987-654-3210", inventory_obj, medicine_list)
 vendor_list.add_vendor(v1)
 vendor_list.add_vendor(v2)
 
@@ -16,7 +17,6 @@ b2 = batch.Batch("B002", "2025-06-30")
 batch_list.add_batch(b1)
 batch_list.add_batch(b2)
 
-medicine_list = medicine.MedicineList()
 m1 = medicine.Medicine("Aspirin", b1, "2024-12-31", 9.99, v1)
 m2 = medicine.Medicine("Ibuprofen", b2, "2025-06-30", 12.99, v2)
 medicine_list.add_medicine(m1)
@@ -74,7 +74,7 @@ def fulfill_order(vendor_id):
 @app.route("/vendors/add", methods=["POST"])
 def add_vendor():
     data = request.get_json()
-    new_vendor = vendor.Vendor(data["vendor_id"], data["name"], data["contact_info"])
+    new_vendor = vendor.Vendor(data["vendor_id"], data["name"], data["contact_info"], inventory_obj, medicine_list)
     vendor_list.add_vendor(new_vendor)
     return {"message": "Vendor added successfully"}, 201
 

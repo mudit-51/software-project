@@ -12,6 +12,8 @@ class Sales:
         self.sales_list = []
 
     def add_sale(self, cart_obj: cart.Cart):
+        if cart_obj is None:
+            raise ValueError("Cart object cannot be None or not of type Cart.")
         self.sales_list.append(cart_obj)
 
     def get_sales_statistics(self):

@@ -1,5 +1,14 @@
+from datetime import datetime
+
+
 class Batch:
     def __init__(self, batch_number: str, expiry_date: str):
+        if batch_number is None or batch_number == "":
+            raise ValueError("Batch number cannot be None or empty")
+        try:
+            datetime.strptime(expiry_date, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("Expiry date must be in YYYY-MM-DD format")
         self.batch_number = batch_number
         self.expiry_date = expiry_date
 
@@ -17,6 +26,8 @@ class BatchList:
         self.batches = []
 
     def add_batch(self, batch: Batch):
+        if batch is None:
+            raise ValueError("Batch cannot be None")
         self.batches.append(batch)
 
     def remove_batch(self, batch_number: str):
