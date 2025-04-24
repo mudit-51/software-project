@@ -165,7 +165,8 @@ def get_value_statistics():
 
 @app.route("/history", methods=["GET"])
 def get_history():
-    temp = sales_instance.get_sales_history_json().reverse()
+    temp = sales_instance.get_sales_history_json()
+    temp.reverse()
     return temp
 
 

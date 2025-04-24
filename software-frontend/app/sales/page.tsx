@@ -141,6 +141,12 @@ export default function Page() {
     // eslint-disable-next-line
   }, [cartCreated]);
 
+  // Calculate cart total
+  const cartTotal = cart.reduce(
+    (sum, item) => sum + item.quantity * item.medicine.price,
+    0
+  );
+
   return (
     <div className="p-8">
       {/* Receipt Dialog */}
@@ -306,6 +312,10 @@ export default function Page() {
               ))}
             </TableBody>
           </Table>
+          {/* Cart total display */}
+          <div className="mb-4 font-semibold">
+            Cart Total: ₹{cartTotal}
+          </div>
           <Button onClick={handleCheckout} disabled={cart.length === 0}>
             Complete Transaction
           </Button>

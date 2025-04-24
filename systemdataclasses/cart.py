@@ -32,6 +32,8 @@ class Cart:
 
     def calculate_total(self) -> float:
         total = 0.0
+        item: medicine.Medicine
+        quantity: int
         for item, quantity in self.cart.items():
             total += item.price * quantity
         return total
@@ -47,7 +49,7 @@ class Cart:
                 {
                     "name": item.name,
                     "quantity": quantity,
-                    "price": item.price * quantity,
+                    "price": item.price,
                 }
             )
         self.sales.add_sale(self)
